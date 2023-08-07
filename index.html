@@ -1,0 +1,66 @@
+<html>
+<head>
+    <title>UNDP信息查询系统</title>
+    <style>
+        h1 {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        input {
+            display: block;
+            margin: 0 auto;
+            width: 200px;
+            height: 30px;
+            font-size: 20px;
+        }
+
+        button {
+            display: block;
+            margin: 10px auto;
+            width: 100px;
+            height: 40px;
+            font-size: 20px;
+        }
+
+        p {
+            text-align: center;
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 24px;
+        }
+    </style>
+</head>
+<body>
+    <h1>UNDP信息查询系统</h1>
+    <input id="query" type="text" placeholder="请输入查询号码">
+    <button id="submit" onclick="search()">查询</button>
+    <p id="result"></p>
+    <script>
+        // 从data.csv文件中读取数据，存储为一个对象
+        var data = {};
+        var xhr = new XMLHttpRequest();
+        xhr.open("GET", "data.csv", true);
+        xhr.onload = function() {
+            var lines = xhr.responseText.split("\n");
+            for (var i = 1; i < lines.length; i++) {
+                var fields = lines[i].split(",");
+                var number = fields[0];
+                var score = fields[1];
+                data[number] = score;
+            }
+        };
+        xhr.send();
+
+        // 定义查询函数，根据输入的号码在数据对象中查找对应的分数，并显示在页面上
+        function search() {
+            var query = document.getElementById("query").value;
+            var result = document.getElementById("result");
+            if (data.hasOwnProperty(query)) {
+                result.innerHTML = "查询号码：" + query + "<br>对应分数：" + data[query];
+            } else {
+                result.innerHTML = "查询号码：" + query + "<br>没有找到对应的分数，请检查输入是否正确。";
+            }
+        }
+    </script>
+</body>
+</html>
