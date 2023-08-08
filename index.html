@@ -1,66 +1,102 @@
+<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="utf-8">
     <title>UNHCR信息查询系统</title>
     <style>
         h1 {
             text-align: center;
-            font-family: Arial, Helvetica, sans-serif;
         }
-
+        form {
+            margin: 0 auto;
+            width: 300px;
+        }
         input {
             display: block;
-            margin: 0 auto;
-            width: 200px;
-            height: 30px;
-            font-size: 20px;
+            margin: 10px;
         }
-
         button {
-            display: block;
-            margin: 10px auto;
-            width: 100px;
-            height: 40px;
-            font-size: 20px;
+            margin: 10px;
         }
-
         p {
             text-align: center;
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 24px;
         }
     </style>
 </head>
 <body>
     <h1>UNHCR信息查询系统</h1>
-    <input id="query" type="text" placeholder="请输入查询号码">
-    <button id="submit" onclick="search()">查询</button>
+    <form id="form">
+        <input type="text" id="number" placeholder="请输入查询号码">
+        <input type="password" id="password" placeholder="请输入密码">
+        <button type="button" id="submit">提交查询</button>
+    </form>
     <p id="result"></p>
     <script>
-        // 从data.csv文件中读取数据，存储为一个对象
-        var data = {};
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", "data.csv", true);
-        xhr.onload = function() {
-            var lines = xhr.responseText.split("\n");
-            for (var i = 1; i < lines.length; i++) {
-                var fields = lines[i].split(",");
-                var number = fields[0];
-                var score = fields[1];
-                data[number] = score;
-            }
-        };
-        xhr.send();
+        // 获取元素
+        var form = document.getElementById("form");
+        var number = document.getElementById("number");
+        var password = document.getElementById("password");
+        var submit = document.getElementById("submit");
+        var result = document.getElementById("result");
 
-        // 定义查询函数，根据输入的号码在数据对象中查找对应的分数，并显示在页面上
-        function search() {
-            var query = document.getElementById("query").value;
-            var result = document.getElementById("result");
-            if (data.hasOwnProperty(query)) {
-                result.innerHTML = "查询号码：" + query + "<br>对应分数：" + data[query];
-            } else {
-                result.innerHTML = "查询号码：" + query + "<br>没有找到对应的分数，请检查输入是否正确。";
+        // 定义数据文件的路径
+        var dataFile = "data.csv";
+
+        // 定义查询函数
+        function query() {
+            // 获取用户输入的号码和密码
+            var num = number.value;
+            var pwd = password.value;
+
+            // 检查输入是否为空
+            if (num == "" || pwd == "") {
+                alert("请输入查询号码和密码");
+                return;
             }
+
+            // 创建XMLHttpRequest对象
+            var xhr = new XMLHttpRequest();
+
+            // 设置请求方法和地址
+            xhr.open("GET", dataFile, true);
+
+            // 设置响应类型为文本
+            xhr.responseType = "text";
+
+            // 设置请求成功后的回调函数
+            xhr.onload = function() {
+                // 如果状态码为200，表示请求成功
+                if (xhr.status == 200) {
+                    // 获取响应文本
+                    var data = xhr.responseText;
+
+                    // 将数据按行分割成数组
+                    var lines = data.split("\n");
+
+                    // 遍历每一行数据
+                    for (var i = 0; i < lines.length; i++) {
+                        // 将每一行数据按逗号分割成数组
+                        var fields = lines[i].split(",");
+
+                        // 如果第一列数据等于用户输入的号码，并且第二列数据等于用户输入的密码
+                        if (fields[0] == num && fields[1] == pwd) {
+                            // 将第三列数据作为分数显示在网页上
+                            result.innerHTML = "你的分数是：" + fields[2];
+                            return;
+                        }
+                    }
+
+                    // 如果没有找到匹配的数据，显示提示信息
+                    result.innerHTML = "查询号码或密码错误，请重新输入";
+                }
+            };
+
+            // 发送请求
+            xhr.send();
         }
+
+        // 给提交按钮添加点击事件监听
+        submit.addEventListener("click", query);
     </script>
 </body>
 </html>
